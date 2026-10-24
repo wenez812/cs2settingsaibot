@@ -1,0 +1,20 @@
+name: Update meta.json
+on:
+  schedule: [{cron: "0 6 * * 1,4"}]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clone source
+        run: git clone --depth 1 https://github.com/AntonyPerez0/cs2-pro-configs /tmp/src
+      - name: Build meta
+        run: python3 build_meta.py /tmp/src
+      - name: Commit
+        run: |
+          git config user.name "meta-bot"; git config user.email "meta-bot@users.noreply.github.com"
+          git add meta.json state.json
+          git diff --cached --quiet || (git commit -m "update meta" && git push)
