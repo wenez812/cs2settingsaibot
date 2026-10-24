@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>CS2 Pro Settings</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Ccircle cx=%2732%27 cy=%2732%27 r=%2715%27 fill=%27%239b7bff%27/%3E%3Cellipse cx=%2732%27 cy=%2732%27 rx=%2728%27 ry=%279%27 fill=%27none%27 stroke=%27%235ee7ff%27 stroke-width=%273%27 transform=%27rotate(-22 32 32)%27/%3E%3C/svg%3E">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="stylesheet" href="style.css?v=12">
+</head>
+<body>
+<canvas id="sky" aria-hidden="true"></canvas>
+
+<main class="app">
+  <header class="top">
+    <svg class="logo" viewBox="0 0 64 64" aria-hidden="true">
+      <defs>
+        <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5ee7ff"/><stop offset=".55" stop-color="#9b7bff"/><stop offset="1" stop-color="#ff6bd6"/></linearGradient>
+        <linearGradient id="g2" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#5ee7ff"/><stop offset="1" stop-color="#ff6bd6"/></linearGradient>
+      </defs>
+      <circle cx="32" cy="32" r="15" fill="url(#g1)"/>
+      <ellipse cx="32" cy="32" rx="28" ry="9" fill="none" stroke="url(#g2)" stroke-width="2.6" transform="rotate(-22 32 32)" opacity=".95"/>
+      <circle cx="32" cy="32" r="3" fill="#04050c"/><path d="M32 26v12M26 32h12" stroke="#04050c" stroke-width="1.4"/>
+    </svg>
+    <div>
+      <h1>CS2 <span>Pro Settings</span></h1>
+      <p id="sub">Загружаем звёздную карту…</p>
+    </div>
+    <button class="round dice" type="button" data-act="rand" aria-label="Случайный игрок" title="Случайный игрок">🎲</button>
+  </header>
+
+  <!-- ===== Игроки ===== -->
+  <section class="view on" id="v-players">
+    <div class="health" id="health" hidden></div>
+    <div class="search">
+      <label class="field" id="field">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" type="search" placeholder="Ник, имя или команда" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
+        <button class="clear" id="clr" type="button" aria-label="Очистить">×</button>
+      </label>
+    </div>
+    <div class="chips" id="chips" role="tablist">
+      <button class="chip on" data-m="all" type="button">🪐 Все</button>
+      <button class="chip" data-m="top" type="button">🏆 Топ-10 HLTV</button>
+      <button class="chip" data-m="fav" type="button">★ Избранное</button>
+      <button class="chip" data-act="flt" id="fltBtn" type="button">🔧 Подбор по параметрам</button>
+    </div>
+    <div class="flt" id="fltPanel" hidden>
+      <h3>Подбор по параметрам</h3>
+      <div class="grid2">
+        <label>eDPI от – до<span class="rng"><input class="inp" data-f="emin" type="number" inputmode="numeric" placeholder="от"><input class="inp" data-f="emax" type="number" inputmode="numeric" placeholder="до"></span></label>
+        <label>Viewmodel FOV от – до<span class="rng"><input class="inp" data-f="fmin" type="number" inputmode="numeric" placeholder="от"><input class="inp" data-f="fmax" type="number" inputmode="numeric" placeholder="до"></span></label>
+        <label>Разрешение<select data-f="res"></select></label>
+        <label>Соотношение сторон<select data-f="ar"></select></label>
+        <label>Пресет viewmodel<select data-f="ps"><option value="">любой</option><option value="1">1 · Desktop</option><option value="2">2 · Couch</option><option value="3">3 · Classic</option></select></label>
+        <label>Стиль прицела<select data-f="xs"></select></label>
+        <label>Цвет прицела<select data-f="xc"></select></label>
+        <label>Сортировка по близости<select data-f="near"><option value="">нет</option><option value="edpi">к eDPI «от–до»</option></select></label>
+        <label class="chk full"><input type="checkbox" data-f="team"> Только игроки из команд рейтинга</label>
+      </div>
+      <div class="acts" style="margin-top:12px"><button class="btn ghost sm" type="button" data-act="fltreset">Сбросить</button></div>
+    </div>
+    <div class="meta">
+      <span id="count"></span>
+      <select id="sort" aria-label="Сортировка">
+        <option value="az">А–Я по нику</option>
+        <option value="lo">eDPI: по возрастанию</option>
+        <option value="hi">eDPI: по убыванию</option>
+      </select>
+    </div>
+    <section class="list" id="list"></section>
+    <div id="more"></div>
+  </section>
+
+  <!-- ===== Команды ===== -->
+  <section class="view" id="v-teams">
+    <div class="search">
+      <label class="field" id="tfield">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="tq" type="search" placeholder="Команда или ник игрока" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button class="clear" id="tclr" type="button" aria-label="Очистить">×</button>
+      </label>
+    </div>
+    <div class="meta"><span id="tcount"></span></div>
+    <section class="list" id="tlist"></section>
+  </section>
+
+  <!-- ===== Популярное ===== -->
+  <section class="view" id="v-pop"></section>
+
+  <!-- ===== Сравнить ===== -->
+  <section class="view" id="v-cmp"></section>
+
+  <!-- ===== Обновления ===== -->
+  <section class="view" id="v-upd"></section>
+
+  <p class="foot">
+    Данные: <a href="https://github.com/AntonyPerez0/cs2-pro-configs" target="_blank" rel="noopener">cs2-pro-configs</a> (MIT) · settings.gg · составы команд: Valve Ranking (HLTV).<br>
+    Прицелы пересчитаны сообществом в новую систему CS2 и могут отличаться от оригинала.
+  </p>
+</main>
+
+<nav class="nav" aria-label="Разделы"><div class="in">
+  <button type="button" class="on" data-nav="players"><span class="ic">🪐</span>Игроки</button>
+  <button type="button" data-nav="teams"><span class="ic">🛰</span>Команды</button>
+  <button type="button" data-nav="pop"><span class="ic">📊</span>Популярное</button>
+  <button type="button" data-nav="cmp"><span class="ic">⚖️</span>Сравнить</button>
+  <button type="button" data-nav="upd"><span class="ic">🔔</span>Обновления<span class="badge" id="badge" hidden>0</span></button>
+</div></nav>
+
+<div class="sheet" id="sheet" aria-hidden="true"><div class="scroll" id="scroll"><div class="in" id="sheetIn"></div></div></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="app.js?v=12"></script>
+</body>
+</html>
